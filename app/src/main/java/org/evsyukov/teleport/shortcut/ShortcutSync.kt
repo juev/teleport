@@ -8,6 +8,7 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.net.toUri
 import org.evsyukov.teleport.MainActivity
 import org.evsyukov.teleport.R
 import org.evsyukov.teleport.data.Action
@@ -25,17 +26,36 @@ class ShortcutSync(private val context: Context) {
     }
 
     private fun toShortcut(action: Action): ShortcutInfoCompat {
-        val intent = Intent(context, MainActivity::class.java)
-            .setAction(Intent.ACTION_VIEW)
-            .putExtra(LaunchKeys.ACTION_ID, action.id)
         val label = action.label.ifEmpty { context.getString(R.string.app_name) }
         return ShortcutInfoCompat.Builder(context, action.id)
             .setShortLabel(label)
             .setLongLabel(label)
             .setIcon(iconFor(action))
-            .setIntent(intent)
+            .setIntent(intentFor(action))
             .build()
     }
+
+    /**
+     * A direct intent lets the launcher start the target itself, exactly like
+     * the target's own icon: one transition, no Teleport trampoline and no
+     * blank card (spec R5). When the target cannot be resolved right now, the
+     * shortcut keeps the trampoline intent, so a tap still leads to the
+     * settings with the reason instead of the launcher's own error (spec R3).
+     */
+    private fun intentFor(action: Action): Intent = directIntent(action) ?: trampolineIntent(action)
+
+    private fun directIntent(action: Action): Intent? = when (action) {
+        is Action.AppLaunch -> context.packageManager.getLaunchIntentForPackage(action.packageName)
+        // Package visibility can hide a handler; the fallback then only costs the
+        // trampoline transition, the launch itself still works.
+        is Action.OpenLink -> Intent(Intent.ACTION_VIEW, action.uri.toUri())
+            .takeIf { context.packageManager.resolveActivity(it, 0) != null }
+    }
+
+    private fun trampolineIntent(action: Action): Intent =
+        Intent(context, MainActivity::class.java)
+            .setAction(Intent.ACTION_VIEW)
+            .putExtra(LaunchKeys.ACTION_ID, action.id)
 
     private fun iconFor(action: Action): IconCompat = when (action) {
         is Action.AppLaunch -> try {

@@ -17,11 +17,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Teleport">
+        <!-- The launcher icon and the shortcut items without a direct intent:
+             resolves the action and finishes without drawing (spec R1). -->
         <activity
             android:name=".MainActivity"
-            android:exported="true"
             android:excludeFromRecents="true"
-            android:launchMode="singleTask">
+            android:exported="true"
+            android:theme="@style/Theme.Teleport.Launch">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -30,6 +32,25 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
+        <!-- The settings screen in its own task: the trampoline task stays
+             disposable, so the launcher never reuses a settings snapshot (R1). -->
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:taskAffinity="org.evsyukov.teleport.settings"
+            android:theme="@style/Theme.Teleport" />
+        <!-- Republish the shortcuts when a target disappears (spec R3/R5).
+             PACKAGE_FULLY_REMOVED is exempt from the implicit broadcast limits. -->
+        <receiver
+            android:name=".shortcut.PackageRemovedReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

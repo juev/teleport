@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Translucent: the launch trampoline must not flash its own window (spec R1). -->
-    <style name="Theme.Teleport" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-    </style>
+    <!-- The settings screen: an ordinary opaque window (spec R6). -->
+    <style name="Theme.Teleport" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- The launch trampoline draws nothing at all: it resolves the action and
+         finishes before the first frame, so the launcher's open transition never
+         gets a window to paint (spec R1). Theme.NoDisplay kills the process when
+         an activity reaches onResume without having finished. -->
+    <style name="Theme.Teleport.Launch" parent="android:Theme.NoDisplay" />
 </resources>
