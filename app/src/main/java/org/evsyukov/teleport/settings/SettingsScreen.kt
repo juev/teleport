@@ -72,8 +72,10 @@ fun SettingsScreen(reason: SettingsReason?, viewModel: SettingsViewModel) {
         topBar = { TopAppBar(title = { Text(stringResource(R.string.settings_title)) }) },
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
-            if (reason == SettingsReason.NO_PRIMARY || reason == SettingsReason.UNAVAILABLE) {
-                val text = if (reason == SettingsReason.NO_PRIMARY) {
+            val showNoPrimary = reason == SettingsReason.NO_PRIMARY && config.primaryActionId == null
+            val showUnavailable = reason == SettingsReason.UNAVAILABLE
+            if (showNoPrimary || showUnavailable) {
+                val text = if (showNoPrimary) {
                     R.string.reason_no_primary
                 } else {
                     R.string.reason_unavailable

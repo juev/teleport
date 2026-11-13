@@ -86,11 +86,15 @@ root/Shizuku, публикация в сторах и скриншоты лис�
 
 - Имя Teleport, `applicationId org.evsyukov.teleport` (конвенция
   `org.evsyukov.<имя>` как в brook). Каналы: Play + F-Droid.
-- Один activity (MAIN/LAUNCHER). Режим определяется extras intent: без
-  extras — клик по иконке (основное действие), extra `action_id` — shortcut
-  действия, extra `open_settings` — настройки. Действие исполняется до
-  отрисовки UI, поэтому своего UI при запуске не видно. Отдельный
-  прозрачный activity-трамплин отклонён: лишний компонент без выигрыша.
+- Один activity (MAIN/LAUNCHER, `singleTask`, `excludeFromRecents`). Режим
+  определяется extras intent: без extras — клик по иконке (основное
+  действие), extra `action_id` — shortcut действия, action
+  `org.evsyukov.teleport.OPEN_SETTINGS` — настройки. Действие исполняется
+  до отрисовки UI, поэтому своего UI при запуске не видно. `singleTask` и
+  `onNewIntent` обязательны: лаунчер переиспользует существующую задачу
+  при клике по иконке, и без них повторный клик возвращал бы в настройки
+  вместо запуска (проверено на эмуляторе). Отдельный прозрачный
+  activity-трамплин отклонён: лишний компонент без выигрыша.
 - Модель действий: sealed-тип `AppLaunch(packageName)` и `OpenLink(uri)` с
   полями id (UUID), метка, порядок. Хранение: DataStore Preferences + JSON
   (kotlinx-serialization). Room не нужен: один небольшой список без запросов.
