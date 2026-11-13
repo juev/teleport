@@ -11,3 +11,5 @@ Teleport turns its launcher icon into a button you configure: tap it to open the
 </ul>
 
 Teleport has no ads, analytics or tracking, requests no permissions and makes no network requests. Your configuration stays on the device.
+
+Teleport is free software under the MIT license.
