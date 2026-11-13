@@ -2,5 +2,5 @@ package org.evsyukov.teleport.launch
 
 object LaunchKeys {
     const val ACTION_ID = "action_id"
-    const val OPEN_SETTINGS = "open_settings"
+    const val ACTION_OPEN_SETTINGS = "org.evsyukov.teleport.OPEN_SETTINGS"
 }

@@ -4,4 +4,6 @@
     <string name="settings_hint">Choose what the Teleport icon opens.</string>
     <string name="reason_no_primary">Nothing is set up yet — choose an app or a link.</string>
     <string name="reason_unavailable">That action is no longer available — choose another one.</string>
+    <string name="shortcut_settings_short">Settings</string>
+    <string name="shortcut_settings_long">Open Teleport settings</string>
 </resources>

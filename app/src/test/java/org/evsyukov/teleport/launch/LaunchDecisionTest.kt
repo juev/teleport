@@ -47,15 +47,14 @@ class LaunchDecisionTest {
 
     @Test
     fun settingsShortcutOpensSettings() {
-        val intent = Intent().putExtra(LaunchKeys.OPEN_SETTINGS, true)
+        val intent = Intent(LaunchKeys.ACTION_OPEN_SETTINGS)
         assertThat(LaunchDecision.resolve(intent, config))
             .isEqualTo(LaunchDecision.Settings(SettingsReason.REQUESTED))
     }
 
     @Test
     fun settingsShortcutWinsOverActionId() {
-        val intent = Intent()
-            .putExtra(LaunchKeys.OPEN_SETTINGS, true)
+        val intent = Intent(LaunchKeys.ACTION_OPEN_SETTINGS)
             .putExtra(LaunchKeys.ACTION_ID, b.id)
         assertThat(LaunchDecision.resolve(intent, config))
             .isEqualTo(LaunchDecision.Settings(SettingsReason.REQUESTED))

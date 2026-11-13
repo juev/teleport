@@ -12,7 +12,7 @@ sealed interface LaunchDecision {
 
     companion object {
         fun resolve(intent: Intent, config: TeleportConfig): LaunchDecision {
-            if (intent.getBooleanExtra(LaunchKeys.OPEN_SETTINGS, false)) {
+            if (intent.action == LaunchKeys.ACTION_OPEN_SETTINGS) {
                 return Settings(SettingsReason.REQUESTED)
             }
             val id = intent.getStringExtra(LaunchKeys.ACTION_ID) ?: config.primaryActionId
