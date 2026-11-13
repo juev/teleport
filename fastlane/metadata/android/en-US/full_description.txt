@@ -1,0 +1,13 @@
+Teleport turns its launcher icon into a button you configure: tap it to open the app you choose, or a link that deep-links into a specific screen. Long-press the icon for a menu with your actions and the settings.
+
+<b>Features</b>
+<ul>
+<li>Tap the icon to open your chosen app or link — Teleport itself stays out of the way.</li>
+<li>Long-press the icon for the shortcut menu: settings plus your actions, with the target app icons.</li>
+<li>Add any launchable app from a searchable picker, or a URL / deep link with its own label.</li>
+<li>Reorder actions to choose which appear in the launcher menu, and pick the one the icon tap opens.</li>
+<li>Drag a menu entry to the home screen as a separate pinned icon.</li>
+<li>If the target is gone, Teleport opens its settings with a message instead of failing silently.</li>
+</ul>
+
+Teleport has no ads, analytics or tracking, requests no permissions and makes no network requests. Your configuration stays on the device.

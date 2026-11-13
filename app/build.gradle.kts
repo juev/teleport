@@ -14,9 +14,37 @@ android {
         applicationId = "org.evsyukov.teleport"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        // The version and its code live in gradle.properties, where F-Droid looks for them in a tag;
+        // a release raises both. Every release raises the code: an updater that compares codes sees
+        // no update otherwise. A candidate 1.2.3-rc.4 gets 1020304, the final 1.2.3 gets 1020399,
+        // above all of its candidates, and the code written down must be the one of the version.
+        val version = providers.gradleProperty("teleport.version").get()
+        val match = Regex("""(\d+)\.(\d+)\.(\d+)(?:-rc\.(\d+))?""").matchEntire(version)
+            ?: error("teleport.version $version is neither 1.2.3 nor 1.2.3-rc.4")
+        val (major, minor, patch, rc) = match.destructured
+        val candidate = rc.toIntOrNull() ?: 99
+        require(minor.toInt() < 100 && patch.toInt() < 100 && candidate in 1..99 && rc != "99") {
+            "teleport.version $version does not fit the version code"
+        }
+        val code = ((major.toInt() * 100 + minor.toInt()) * 100 + patch.toInt()) * 100 + candidate
+        val written = providers.gradleProperty("teleport.versionCode").get()
+        require(written == code.toString()) { "teleport.versionCode $written is not $code, the code of teleport.version $version" }
+        versionCode = code
+        versionName = version
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // The release key comes from the environment (CI secrets); without it the release stays unsigned.
+    val keystore = providers.environmentVariable("TELEPORT_KEYSTORE").orNull
+    signingConfigs {
+        if (keystore != null) {
+            create("release") {
+                storeFile = file(keystore)
+                storePassword = providers.environmentVariable("TELEPORT_KEYSTORE_PASSWORD").get()
+                keyAlias = providers.environmentVariable("TELEPORT_KEY_ALIAS").get()
+                keyPassword = providers.environmentVariable("TELEPORT_KEY_PASSWORD").get()
+            }
+        }
     }
 
     buildTypes {
@@ -24,6 +52,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (keystore != null) signingConfig = signingConfigs.getByName("release")
         }
     }
 

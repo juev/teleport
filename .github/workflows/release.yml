@@ -1,0 +1,88 @@
+name: Release
+
+# A tag v1.2.3 builds the signed APK of version 1.2.3 and publishes it as a GitHub release; the
+# version in gradle.properties must be 1.2.3. Started by hand, the workflow builds the version of
+# gradle.properties and keeps the APK as an artifact only.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      # The release notes are made from the commits since the previous tag.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Read the version
+        run: |
+          version=$(sed -n 's/^teleport\.version=//p' gradle.properties)
+          if [ "$GITHUB_EVENT_NAME" = push ] && [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "The tag $GITHUB_REF_NAME is not v$version of gradle.properties" >&2
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Restore the signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.TELEPORT_KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/teleport-release.jks"
+          echo "TELEPORT_KEYSTORE=$RUNNER_TEMP/teleport-release.jks" >> "$GITHUB_ENV"
+      - name: Build
+        env:
+          TELEPORT_KEYSTORE_PASSWORD: ${{ secrets.TELEPORT_KEYSTORE_PASSWORD }}
+          TELEPORT_KEY_ALIAS: ${{ secrets.TELEPORT_KEY_ALIAS }}
+          TELEPORT_KEY_PASSWORD: ${{ secrets.TELEPORT_KEY_PASSWORD }}
+        run: |
+          ./gradlew testDebugUnitTest assembleRelease
+          mv app/build/outputs/apk/release/app-release.apk "teleport-$VERSION.apk"
+          echo "APK=teleport-$VERSION.apk" >> "$GITHUB_ENV"
+      - name: Check the signature
+        run: |
+          apksigner=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+          "$apksigner" verify --print-certs "$APK"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.APK }}
+          path: ${{ env.APK }}
+      # Google Play takes a bundle signed with the upload key; Play signs the APKs it serves with the
+      # key of the APK above, so both installs update each other.
+      - name: Build the Play bundle
+        env:
+          UPLOAD_KEYSTORE_BASE64: ${{ secrets.TELEPORT_UPLOAD_KEYSTORE_BASE64 }}
+          TELEPORT_KEYSTORE_PASSWORD: ${{ secrets.TELEPORT_UPLOAD_KEYSTORE_PASSWORD }}
+          TELEPORT_KEY_ALIAS: ${{ secrets.TELEPORT_UPLOAD_KEY_ALIAS }}
+          TELEPORT_KEY_PASSWORD: ${{ secrets.TELEPORT_UPLOAD_KEY_PASSWORD }}
+        run: |
+          echo "$UPLOAD_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/teleport-upload.jks"
+          TELEPORT_KEYSTORE="$RUNNER_TEMP/teleport-upload.jks" ./gradlew bundleRelease
+          mv app/build/outputs/bundle/release/app-release.aab "teleport-$VERSION.aab"
+          echo "AAB=teleport-$VERSION.aab" >> "$GITHUB_ENV"
+      - name: Check the bundle signature
+        run: |
+          # jarsigner exits with 0 on an unsigned file too; only its verdict tells. Not grep -q: it
+          # stops at the verdict, and the warnings after it would end tee by SIGPIPE under pipefail.
+          jarsigner -verify "$AAB" | tee /dev/stderr | grep '^jar verified\.' > /dev/null
+          keytool -printcert -jarfile "$AAB"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.AAB }}
+          path: ${{ env.AAB }}
+      - if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # A tag with a suffix, v1.2.3-rc.1, is published as a pre-release.
+        run: |
+          prerelease=
+          case "$GITHUB_REF_NAME" in *-*) prerelease=--prerelease ;; esac
+          gh release create "$GITHUB_REF_NAME" "$APK" --title "Teleport ${GITHUB_REF_NAME#v}" --generate-notes $prerelease
