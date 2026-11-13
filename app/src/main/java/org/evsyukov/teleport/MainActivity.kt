@@ -4,15 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
+import org.evsyukov.teleport.data.AppCatalog
 import org.evsyukov.teleport.launch.ActionLauncher
 import org.evsyukov.teleport.launch.LaunchDecision
 import org.evsyukov.teleport.launch.SettingsReason
+import org.evsyukov.teleport.settings.SettingsScreen
+import org.evsyukov.teleport.settings.SettingsViewModel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import androidx.lifecycle.lifecycleScope
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,18 +31,17 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Placeholder until the settings screen lands; the reason message is the contract (R2, R3).
     private fun showSettings(reason: SettingsReason) {
-        val message = when (reason) {
-            SettingsReason.REQUESTED -> R.string.settings_hint
-            SettingsReason.NO_PRIMARY -> R.string.reason_no_primary
-            SettingsReason.UNAVAILABLE -> R.string.reason_unavailable
-        }
+        val app = application as TeleportApplication
         setContent {
             MaterialTheme {
-                Surface {
-                    Text(stringResource(message))
-                }
+                val viewModel: SettingsViewModel = viewModel(
+                    factory = SettingsViewModel.factory(app.store, AppCatalog(app)),
+                )
+                SettingsScreen(
+                    reason = reason.takeIf { it != SettingsReason.REQUESTED },
+                    viewModel = viewModel,
+                )
             }
         }
     }

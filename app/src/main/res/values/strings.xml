@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Teleport</string>
-    <string name="settings_hint">Choose what the Teleport icon opens.</string>
     <string name="reason_no_primary">Nothing is set up yet — choose an app or a link.</string>
     <string name="reason_unavailable">That action is no longer available — choose another one.</string>
     <string name="shortcut_settings_short">Settings</string>
     <string name="shortcut_settings_long">Open Teleport settings</string>
+    <string name="settings_title">Teleport settings</string>
+    <string name="primary_hint">Tap the icon to open:</string>
+    <string name="primary_none">Not set — add an action below</string>
+    <string name="add_app">Add app</string>
+    <string name="add_link">Add link</string>
+    <string name="search_apps">Search apps</string>
+    <string name="link_uri">URL or deep link</string>
+    <string name="link_label">Label (optional)</string>
+    <string name="link_invalid">Enter a URL with a scheme, e.g. https://example.com</string>
+    <string name="action_remove">Remove</string>
+    <string name="action_up">Move up</string>
+    <string name="action_down">Move down</string>
+    <string name="no_actions">No actions yet. Add an app or a link.</string>
 </resources>
