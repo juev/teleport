@@ -18,6 +18,17 @@ An Android app whose launcher icon is a button you configure. Tap it to open the
 
 Teleport needs Android 8.0 (API 26) or later. Download the APK of the latest version from [Releases](https://github.com/juev/teleport/releases) and open it on the phone.
 
+### Obtainium
+
+[Obtainium](https://github.com/ImranR98/Obtainium) installs and updates Teleport straight from GitHub releases:
+
+1. In Obtainium, tap Add App and pick the GitHub source.
+2. Enter `https://github.com/juev/teleport` as the URL.
+3. Turn on "Include prereleases" to receive release candidates like `v0.1.0-rc.1`.
+4. Leave the APK filter empty: each release carries a single APK, `teleport-<version>.apk`.
+
+Obtainium then checks the releases and installs updates in the background. The GitHub APK and a future Google Play install share the signing key, so an install from either place updates the other.
+
 ## Build
 
 Requirements: JDK 21 and the Android SDK with platform 37.

@@ -1,0 +1,1 @@
+Release candidate of 0.1.0. Tap the icon to open your chosen app or link; long press for the shortcut menu and settings.
