@@ -3,7 +3,6 @@ package org.evsyukov.teleport.shortcut
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.pm.ShortcutManager
 import android.graphics.drawable.AdaptiveIconDrawable
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
@@ -19,7 +18,7 @@ class ShortcutSync(private val context: Context) {
 
     fun sync(config: TeleportConfig) {
         val staticCount = ShortcutManagerCompat
-            .getShortcuts(context, ShortcutManager.FLAG_MATCH_MANIFEST).size
+            .getShortcuts(context, ShortcutManagerCompat.FLAG_MATCH_MANIFEST).size
         val max = ShortcutManagerCompat.getMaxShortcutCountPerActivity(context)
         val visible = visibleActions(config.actions, max, staticCount)
         ShortcutManagerCompat.setDynamicShortcuts(context, visible.map { toShortcut(it) })

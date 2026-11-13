@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
+import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.first
@@ -12,6 +13,7 @@ import kotlinx.coroutines.launch
 import org.evsyukov.teleport.data.AppCatalog
 import org.evsyukov.teleport.launch.ActionLauncher
 import org.evsyukov.teleport.launch.LaunchDecision
+import org.evsyukov.teleport.launch.LaunchKeys
 import org.evsyukov.teleport.launch.SettingsReason
 import org.evsyukov.teleport.settings.SettingsScreen
 import org.evsyukov.teleport.settings.SettingsViewModel
@@ -38,8 +40,14 @@ class MainActivity : ComponentActivity() {
             val config = store.config.first()
             when (val decision = LaunchDecision.resolve(intent, config)) {
                 is LaunchDecision.Run ->
-                    if (launcher.launch(decision.action)) finish()
-                    else showSettings(SettingsReason.UNAVAILABLE)
+                    if (launcher.launch(decision.action)) {
+                        intent.getStringExtra(LaunchKeys.ACTION_ID)?.let {
+                            ShortcutManagerCompat.reportShortcutUsed(this@MainActivity, it)
+                        }
+                        finish()
+                    } else {
+                        showSettings(SettingsReason.UNAVAILABLE)
+                    }
                 is LaunchDecision.Settings -> showSettings(decision.reason)
             }
         }

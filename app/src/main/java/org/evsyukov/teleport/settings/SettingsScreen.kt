@@ -1,7 +1,6 @@
 package org.evsyukov.teleport.settings
 
 import android.content.pm.PackageManager
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -333,7 +333,7 @@ private fun LinkDialog(onDismiss: () -> Unit, onConfirm: (String, String) -> Uni
         confirmButton = {
             TextButton(onClick = {
                 val trimmed = uri.trim()
-                val parsed = Uri.parse(trimmed)
+                val parsed = trimmed.toUri()
                 if (trimmed.isEmpty() || parsed.scheme.isNullOrBlank()) {
                     error = true
                 } else {

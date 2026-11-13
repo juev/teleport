@@ -2,7 +2,6 @@ package org.evsyukov.teleport.shortcut
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ShortcutManager
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -30,7 +29,7 @@ class ShortcutSyncTest {
         sync.sync(cfg)
         val dynamic = ShortcutManagerCompat.getDynamicShortcuts(context)
         val staticCount = ShortcutManagerCompat
-            .getShortcuts(context, ShortcutManager.FLAG_MATCH_MANIFEST).size
+            .getShortcuts(context, ShortcutManagerCompat.FLAG_MATCH_MANIFEST).size
         val max = ShortcutManagerCompat.getMaxShortcutCountPerActivity(context)
         val expected = ShortcutSync.visibleActions(cfg.actions, max, staticCount)
 
