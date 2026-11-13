@@ -1,0 +1,1 @@
+Release candidate 0.1.0. Shortcut menu items now open their app or link directly, so they no longer show a white card on ColorOS, and the icon tap no longer flashes the settings screen. A removed target still opens the settings with a message.
